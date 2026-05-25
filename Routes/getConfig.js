@@ -1,5 +1,6 @@
 const { getIPData } = require("../Utils/IPUtils.js");
 const config = require("../config.json");
+const { connection } = require("mongoose");
 
 exports.data = {
 	Name: "getConfig",
@@ -22,11 +23,13 @@ exports.run = async (req, res) => {
 		maintenance = true;
 
 	let IPId = 0;
-	try {
-		({ IPId } = await getIPData(IP));
-	} catch (error) {
-		console.error(`[getConfig] IP lookup failed for ${IP}`);
-		console.error(error);
+	if (connection.readyState === 1) {
+		try {
+			({ IPId } = await getIPData(IP));
+		} catch (error) {
+			console.error(`[getConfig] IP lookup failed for ${IP}`);
+			console.error(error);
+		}
 	}
 
 	res.json({

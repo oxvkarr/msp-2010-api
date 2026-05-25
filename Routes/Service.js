@@ -8,6 +8,7 @@ const { SOAPActions } = require("../mspretro.js");
 const { getIPData } = require("../Utils/IPUtils.js");
 const { validateTicket } = require("../Utils/Ticket.js");
 const config = require("../config.json");
+const { connection } = require("mongoose");
 
 exports.data = {
 	Name: "Service",
@@ -33,11 +34,13 @@ exports.run = async (req, res) => {
 		res.set("checksum-server", createChecksum(undefined));
 
 	let Locked = false;
-	try {
-		({ Locked } = await getIPData(IP));
-	} catch (error) {
-		console.error(`[Service] IP lookup failed for ${IP}`);
-		console.error(error);
+	if (connection.readyState === 1) {
+		try {
+			({ Locked } = await getIPData(IP));
+		} catch (error) {
+			console.error(`[Service] IP lookup failed for ${IP}`);
+			console.error(error);
+		}
 	}
 	if (Locked) return res.sendStatus(403);
 

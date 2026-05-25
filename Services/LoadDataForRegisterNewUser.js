@@ -9,6 +9,7 @@ const seedEyes = require("../seed/msp2010/eyes.json");
 const seedNoses = require("../seed/msp2010/noses.json");
 const seedMouths = require("../seed/msp2010/mouths.json");
 const seedClothes = require("../seed/msp2010/clothes.json");
+const { connection } = require("mongoose");
 
 exports.data = {
 	SOAPAction: "LoadDataForRegisterNewUser",
@@ -26,7 +27,7 @@ exports.run = async () => {
 	let mouths = [];
 	let clothes = [];
 
-	try {
+	if (connection.readyState === 1) try {
 		eyes = await eyeModel.aggregate([
 			{
 				$facet: {
