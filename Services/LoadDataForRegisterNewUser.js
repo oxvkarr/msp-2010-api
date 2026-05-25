@@ -118,15 +118,17 @@ exports.run = async () => {
 		SWF: mouth.SWF,
 		SkinId: mouth.SkinId
 	}));
-	const clothesArr = clothes.map(clothe => ({
+	const clothesArr = clothes.map(clothe => {
+		const swfName = swfClassName(clothe);
+		return ({
 			ClothesId: clothe.ClothesId,
 			Name: clothe.Name,
-			SWF: swfClassName(clothe),
+			SWF: swfName,
 			ClothesCategoryId: clothe.ClothesCategoryId,
 			Price: clothe.Price,
 			ShopId: clothe.ShopId,
 			SkinId: clothe.SkinId,
-			Filename: clothe.Filename,
+			Filename: `${swfName}.swf`,
 			Scale: clothe.Scale,
 			Vip: clothe.Vip,
 			RegNewUser: clothe.RegNewUser,
@@ -142,7 +144,8 @@ exports.run = async () => {
 					Name: clothe.ClothesCategoryName
 				}
 			}
-	}));
+		});
+	});
 
 	return buildXML("LoadDataForRegisterNewUser", {
 		eyes: {
