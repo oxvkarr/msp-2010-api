@@ -12,11 +12,14 @@ const seedClothes = require("../seed/msp2010/clothes.json");
 const { connection } = require("mongoose");
 const { basename } = require("path");
 
-const swfClassName = clothe => {
-	const base = basename(String(clothe.Filename || clothe.SWF || ""), ".swf").replace(
+const swfFileName = clothe =>
+	basename(String(clothe.Filename || clothe.SWF || ""), ".swf").replace(
 		/\s*\([^)]*\)\s*$/,
 		""
 	);
+
+const swfClassName = clothe => {
+	const base = swfFileName(clothe);
 	const aliases = {
 		top_2_Honey: "top2_Honey",
 		top_3_Honey: "top3_Honey",
@@ -129,6 +132,7 @@ exports.run = async () => {
 	}));
 	const clothesArr = clothes.map(clothe => {
 		const swfName = swfClassName(clothe);
+		const fileName = swfFileName(clothe);
 		return ({
 			ClothesId: clothe.ClothesId,
 			Name: clothe.Name,
@@ -137,7 +141,7 @@ exports.run = async () => {
 			Price: clothe.Price,
 			ShopId: clothe.ShopId,
 			SkinId: clothe.SkinId,
-			Filename: `${swfName}.swf`,
+			Filename: `${fileName}.swf`,
 			Scale: clothe.Scale,
 			Vip: clothe.Vip,
 			RegNewUser: clothe.RegNewUser,

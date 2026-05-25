@@ -1,6 +1,8 @@
 const { setError } = require("./ErrorManager.js");
 const {
 	userModel,
+	idModel,
+	clothModel,
 	behaviorModel,
 	giftModel,
 	confModel,
@@ -244,6 +246,95 @@ const getNewId = (exports.getNewId = async sequence_name => {
 	return q.sequence_value || 0;
 });
 
+const clothOverrideById = {
+	1022: { SWF: "hair_6", Filename: "hair_6.swf" },
+	1021: { SWF: "hair_4", Filename: "hair_4.swf" },
+	1036: { SWF: "top2_Honey", Filename: "top_2_Honey.swf" },
+	1011: { SWF: "top3_Honey", Filename: "top_3_Honey.swf" },
+	1054: { SWF: "Honey_Female_bottoms_10", Filename: "Honey_bottoms_10.swf" },
+	1052: { SWF: "Honey_Female_bottoms_9", Filename: "Honey_bottoms_9.swf" },
+	1028: { SWF: "shoes_1", Filename: "shoes_1.swf" },
+	1029: { SWF: "shoes_2", Filename: "shoes_2.swf" }
+};
+
+const baseSwfName = value =>
+	String(value || "")
+		.replace(/\\/g, "/")
+		.split("/")
+		.pop()
+		.replace(/\.swf$/i, "")
+		.replace(/\s*\([^)]*\)\s*$/, "");
+
+const normalizeClothAsset = cloth => {
+	const override = clothOverrideById[Number(cloth && cloth.ClothesId)];
+	if (override) return override;
+	const base = baseSwfName((cloth && cloth.Filename) || (cloth && cloth.SWF));
+	const aliases = {
+		top_2_Honey: "top2_Honey",
+		top_3_Honey: "top3_Honey",
+		top_4_Honey: "Top4",
+		Honey_bottoms_10: "Honey_Female_bottoms_10",
+		Honey_bottoms_9: "Honey_Female_bottoms_9"
+	};
+	return {
+		SWF: aliases[base] || base,
+		Filename: `${base}.swf`
+	};
+};
+
+const buildActorClothesRel = (rel, cloth) => {
+	const asset = normalizeClothAsset(cloth);
+	const categoryId = cloth.ClothesCategoryId || 0;
+	return {
+		ActorClothesRelId: rel.ClothesRellId,
+		ActorId: rel.ActorId,
+		ClothesId: cloth.ClothesId,
+		Color: rel.Colors || cloth.ColorScheme || "",
+		IsWearing: rel.IsWearing,
+		x: rel.x || 0,
+		y: rel.y || 0,
+		Cloth: {
+			ClothesId: cloth.ClothesId,
+			Name: cloth.Name || "",
+			SWF: asset.SWF,
+			ClothesCategoryId: categoryId,
+			Price: cloth.Price || 0,
+			ShopId: cloth.ShopId || 0,
+			SkinId: cloth.SkinId || 0,
+			Filename: asset.Filename,
+			Scale: cloth.Scale || 1,
+			Vip: cloth.Vip || 0,
+			RegNewUser: cloth.RegNewUser || 0,
+			sortorder: cloth.Sortorder || cloth.sortorder || cloth.ClothesId,
+			New: cloth.New || 0,
+			Discount: cloth.Discount || 0,
+			ClothesCategory: {
+				ClothesCategoryId: categoryId,
+				Name: cloth.ClothesCategoryName || "",
+				SlotTypeId: cloth.SlotTypeId || categoryId,
+				SlotType: {
+					SlotTypeId: cloth.SlotTypeId || categoryId,
+					Name: cloth.ClothesCategoryName || ""
+				}
+			}
+		}
+	};
+};
+
+const getActorClothesRels = async ActorId => {
+	const rels = await idModel.find({
+		ActorId,
+		IsWearing: 1,
+		IsRecycled: { $ne: 1 }
+	});
+	const result = [];
+	for (const rel of rels) {
+		const cloth = await clothModel.findOne({ ClothesId: rel.ClothId });
+		if (cloth) result.push(buildActorClothesRel(rel, cloth));
+	}
+	return result;
+};
+
 exports.createActivity = async (
 	ActorId,
 	Type,
@@ -353,6 +444,7 @@ exports.getActorDetails = async (ActorId, RellActorId, Password) => {
 	}
 
 	const config = (await confModel.findOne({})) || { PollId: 0 };
+	const actorClothesRels = await getActorClothesRels(ActorId);
 
 	let PollTaken = 1;
 	if (await pollModel.findOne({ ActorId: ActorId, PollId: config.PollId }))
@@ -492,6 +584,9 @@ exports.getActorDetails = async (ActorId, RellActorId, Password) => {
 			user.Autographs.TimeOfLastAutographGiven,
 			true
 		),
+		ActorClothesRels: {
+			ActorClothesRel: actorClothesRels
+		},
 		BoyFriend: BoyFriend,
 		RoomActorLikes: RoomActorLike
 	};
