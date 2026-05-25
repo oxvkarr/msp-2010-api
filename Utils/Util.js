@@ -352,8 +352,7 @@ exports.getActorDetails = async (ActorId, RellActorId, Password) => {
 		password = Password;
 	}
 
-	let config = await confModel.find({});
-	config = config[0];
+	const config = (await confModel.findOne({})) || { PollId: 0 };
 
 	let PollTaken = 1;
 	if (await pollModel.findOne({ ActorId: ActorId, PollId: config.PollId }))
@@ -362,7 +361,10 @@ exports.getActorDetails = async (ActorId, RellActorId, Password) => {
 
 	let RoomActorLike = {};
 
-	if (user.Room.RoomActorLikes.includes(RellActorId))
+	const roomActorLikes = user.Room && Array.isArray(user.Room.RoomActorLikes)
+		? user.Room.RoomActorLikes
+		: [];
+	if (roomActorLikes.includes(RellActorId))
 		RoomActorLike = {
 			RoomActorLike: {
 				EntityType: 2,
@@ -436,7 +438,9 @@ exports.getActorDetails = async (ActorId, RellActorId, Password) => {
 		LastLogin: formatDate(user.Profile.LastLogin),
 		Email: "0.0", // usually its the email variable instead of 0.0
 		Moderator: moderator,
-		ProfileDisplays: user.Profile.ProfileDisplays.length,
+		ProfileDisplays: Array.isArray(user.Profile.ProfileDisplays)
+			? user.Profile.ProfileDisplays.length
+			: 0,
 		FavoriteMovie: user.Favorites.FavoriteMovie,
 		FavoriteActor: user.Favorites.FavoriteActor,
 		FavoriteActress: user.Favorites.FavoriteActress,
@@ -483,7 +487,7 @@ exports.getActorDetails = async (ActorId, RellActorId, Password) => {
 		TotalVipDays: user.VIP.TotalVipDays,
 		RecyclePoints: user.Extra.RecyclePoints,
 		EmailSettings: user.Email.EmailSettings,
-		RoomLikes: user.Room.RoomActorLikes.length,
+		RoomLikes: roomActorLikes.length,
 		TimeOfLastAutographGivenStr: formatDate(
 			user.Autographs.TimeOfLastAutographGiven,
 			true
