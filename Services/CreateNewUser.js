@@ -16,6 +16,7 @@ const { setValue } = require("../Utils/Globals.js");
 const { setError } = require("../Utils/ErrorManager.js");
 const { run } = require("./LogChat.js");
 const { generateTicket } = require("../Utils/Ticket.js");
+const { connection } = require("mongoose");
 
 let cooldown = new Set();
 
@@ -39,10 +40,14 @@ exports.run = async (request, _, IP) => {
 	}
 
 	const name = request.actor.Name.toString().trim();
+	const password = request.actor.Password || request.password || "";
+	const isMongoReady = connection.readyState === 1;
 
-	const query = await userModel
-		.findOne({ Name: name })
-		.collation({ locale: "en", strength: 2 });
+	const query = isMongoReady
+		? await userModel
+				.findOne({ Name: name })
+				.collation({ locale: "en", strength: 2 })
+		: null;
 
 	// ExtrasId : 3, 4, 274, 275, 279, 416, 417, 425
 
@@ -115,20 +120,21 @@ exports.run = async (request, _, IP) => {
 	let ActorId = (await getNewId("actor_id")) + 100;
 
 	let hash = pbkdf2Sync(
-		`MSPRETRO,${request.actor.Password}`,
-		process.env.CUSTOMCONNSTR_SaltDB,
+		`MSPRETRO,${password}`,
+		process.env.CUSTOMCONNSTR_SaltDB || "msp2010-db-salt",
 		1000,
 		64,
 		"sha512"
 	).toString("hex");
 
-	if (request.clothes.ActorClothesRel2 instanceof Array) {
+	if (isMongoReady && request.clothes.ActorClothesRel2 instanceof Array) {
 		for (let clothe of request.clothes.ActorClothesRel2) {
 			await makeClothesRellId(clothe, ActorId);
 		}
 	} else if (typeof request.clothes === "number") {
 		// Allow user to have no clothes
 	} else if (
+		isMongoReady &&
 		request.clothes.ActorClothesRel2.ActorClothesRelId !== undefined
 	) {
 		await makeClothesRellId(request.clothes.ActorClothesRel2, ActorId);
@@ -138,30 +144,27 @@ exports.run = async (request, _, IP) => {
 	if (request.actor.SkinSWF === "femaleskin") SkinId = 1;
 	else SkinId = 2;
 
-	if (
-		!(await noseModel.findOne({
+	if (isMongoReady && !(await noseModel.findOne({
 			NoseId: request.actor.NoseId,
 			IsHidden: 0,
 			SkinId: { $in: [0, SkinId] }
 		}))
 	)
-		return;
-	if (
-		!(await eyeModel.findOne({
+		console.warn(`[CreateNewUser] Nose ${request.actor.NoseId} not found, continuing`);
+	if (isMongoReady && !(await eyeModel.findOne({
 			EyeId: request.actor.EyeId,
 			IsHidden: 0,
 			SkinId: { $in: [0, SkinId] }
 		}))
 	)
-		return;
-	if (
-		!(await mouthModel.findOne({
+		console.warn(`[CreateNewUser] Eye ${request.actor.EyeId} not found, continuing`);
+	if (isMongoReady && !(await mouthModel.findOne({
 			MouthId: request.actor.MouthId,
 			IsHidden: 0,
 			SkinId: { $in: [0, SkinId] }
 		}))
 	)
-		return;
+		console.warn(`[CreateNewUser] Mouth ${request.actor.MouthId} not found, continuing`);
 
 	const user = new userModel({
 		ActorId: ActorId,
@@ -247,7 +250,7 @@ exports.run = async (request, _, IP) => {
 		},
 		DiscordId: ""
 	});
-	await user.save();
+	if (isMongoReady) await user.save();
 
 	let pathImg = "../DefaultAssets/boy_head.jpg";
 	if (SkinId == 1) pathImg = "../DefaultAssets/girl_head.jpg";
@@ -268,34 +271,49 @@ exports.run = async (request, _, IP) => {
 	dateTicket.setHours(dateTicket.getHours() + 72);
 	dateTicket = dateTicket.getTime();
 
-	const ticket = generateTicket(ActorId, request.password, IP);
+	const ticket = generateTicket(ActorId, password, IP);
 	setValue(`${ActorId}-LEVEL`, 0);
-	setValue(`${ActorId}-PASSWORD`, request.password);
+	setValue(`${ActorId}-PASSWORD`, password);
 
-	const { IPId } = await getIPData(IP);
+	let IPId = 0;
+	if (isMongoReady) {
+		try {
+			({ IPId } = await getIPData(IP));
+		} catch (error) {
+			console.error(`[CreateNewUser] IP lookup failed for ${IP}`);
+			console.error(error);
+		}
+	}
 
-	const saveTicket = new ticketModel({
-		ActorId: ActorId,
-		// Ticket: ticket,
-		Date: dateTicket,
-		Disable: false,
-		IPId: IPId
-	});
-	await saveTicket.save();
+	if (isMongoReady) {
+		const saveTicket = new ticketModel({
+			ActorId: ActorId,
+			// Ticket: ticket,
+			Date: dateTicket,
+			Disable: false,
+			IPId: IPId
+		});
+		await saveTicket.save();
+	}
 
-	run(
-		{
-			roomId: -1,
-			actorId: user.ActorId,
-			message:
-				"User login at: " +
-				formatDate(new Date(), false) +
-				", status: " +
-				(user.BlockedIpAsInt == 0 ? "Success" : "Blocked")
-		},
-		user.ActorId,
-		IP
-	);
+	try {
+		await run(
+			{
+				roomId: -1,
+				actorId: user.ActorId,
+				message:
+					"User login at: " +
+					formatDate(new Date(), false) +
+					", status: " +
+					(user.BlockedIpAsInt == 0 ? "Success" : "Blocked")
+			},
+			user.ActorId,
+			IP
+		);
+	} catch (error) {
+		console.error("[CreateNewUser] LogChat failed");
+		console.error(error);
+	}
 
 	cooldown.add(IP);
 	setTimeout(() => {

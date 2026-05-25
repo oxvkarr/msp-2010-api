@@ -238,10 +238,10 @@ const getNewId = (exports.getNewId = async sequence_name => {
 	const q = await collectionIdModel.findOneAndUpdate(
 		{ _id: sequence_name },
 		{ $inc: { sequence_value: 1 } },
-		{ new: true }
+		{ new: true, upsert: true, setDefaultsOnInsert: true }
 	);
 
-	return q.sequence_value;
+	return q.sequence_value || 0;
 });
 
 exports.createActivity = async (

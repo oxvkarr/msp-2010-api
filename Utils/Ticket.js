@@ -10,7 +10,7 @@ exports.generateTicket = (ActorId, password, IP) => {
 
 	return sign(
 		{ ActorId: ActorId, Password: password, IP: IP },
-		process.env.CUSTOMCONNSTR_TicketSalt,
+		getTicketSalt(),
 		{ expiresIn: "1d" }
 	);
 
@@ -36,7 +36,7 @@ exports.validateTicket = ticket => {
 
 	try {
 		// Token is valid
-		const decoded = verify(ticket, process.env.CUSTOMCONNSTR_TicketSalt);
+		const decoded = verify(ticket, getTicketSalt());
 
 		return { isValid: true, data: decoded };
 	} catch {
@@ -44,6 +44,15 @@ exports.validateTicket = ticket => {
 		return { isValid: false, data: null };
 	}
 };
+
+function getTicketSalt() {
+	return (
+		process.env.CUSTOMCONNSTR_TicketSalt ||
+		process.env.CUSTOMCONNSTR_SaltClient ||
+		process.env.CUSTOMCONNSTR_SaltDB ||
+		"msp2010-ticket-salt"
+	);
+}
 
 /*
 function calculateSha256(data) {
