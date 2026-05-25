@@ -86,7 +86,16 @@ if (cluster.isMaster && useCluster) {
 		res.json({
 			ok: true,
 			service: "msp-2010-api",
+			commit: "startup-debug-1",
 			time: new Date().toISOString()
+		});
+	});
+
+	app.get("/api/startup", (req, res) => {
+		res.json({
+			ok: true,
+			routes: Object.keys(API),
+			soapActions: Object.keys(SOAPActions)
 		});
 	});
 
