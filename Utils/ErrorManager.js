@@ -6,7 +6,7 @@ const defaultError =
 const errorArray = [];
 
 exports.setError = async (error, sendEvent = true, info = {}) => {
-	if (sendEvent)
+	if (sendEvent && process.send)
 		process.send({ msg: "setErrorInvoked", data: { err: error } });
 
 	if (info.moderator) {
@@ -39,6 +39,6 @@ exports.getError = () => {
 };
 
 exports.clearError = (sendEvent = true) => {
-	if (sendEvent) process.send({ msg: "deleteErrorInvoked" });
+	if (sendEvent && process.send) process.send({ msg: "deleteErrorInvoked" });
 	errorArray.pop();
 };

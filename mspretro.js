@@ -91,28 +91,34 @@ if (cluster.isMaster && useCluster) {
 	});
 
 	app.all("*", async (req, res) => {
-		const contentType = req.header("Content-Type");
-		const url = req.path.slice(1);
+		try {
+			const contentType = req.header("Content-Type");
+			const url = req.path.slice(1);
 
-		// Avoid MongoDB injection
-		if (
-			contentType &&
-			url !== "StripeWebhook" &&
-			(contentType.includes("application/x-www-form-urlencoded") ||
-				contentType.includes("application/json"))
-		) {
-			req.body = JSON.parse(JSON.stringify(req.body));
-			req.body = sanitizeJSON(req.body);
+			// Avoid MongoDB injection
+			if (
+				contentType &&
+				url !== "StripeWebhook" &&
+				(contentType.includes("application/x-www-form-urlencoded") ||
+					contentType.includes("application/json"))
+			) {
+				req.body = JSON.parse(JSON.stringify(req.body));
+				req.body = sanitizeJSON(req.body);
+			}
+
+			const method = req.method;
+			const data = API[`${url}-${method}`];
+
+			if (!data || data.data.Method !== method) return res.sendStatus(404);
+
+			res.set("HandledBy", `${hostname()}_${process.pid}`);
+
+			return await data.run(req, res);
+		} catch (error) {
+			console.error(`[Request error] ${req.method} ${req.path}`);
+			console.error(error);
+			if (!res.headersSent) return res.sendStatus(500);
 		}
-
-		const method = req.method;
-		const data = API[`${url}-${method}`];
-
-		if (!data || data.data.Method !== method) return res.sendStatus(404);
-
-		res.set("HandledBy", `${hostname()}_${process.pid}`);
-
-		return await data.run(req, res);
 	});
 
 	app.listen(process.env.PORT, async () => {
@@ -161,16 +167,28 @@ if (cluster.isMaster && useCluster) {
 		// 	process.env.CUSTOMCONNSTR_AzureCommunicationService
 		// );
 
-		await connect(process.env.CUSTOMCONNSTR_URIMongoDB)
-			.then(() =>
-				console.log("Connected to MongoDB - Worker: " + process.pid)
-			)
-			.catch(error => {
-				console.log(
-					"An error has occured with MongoDB - Worker: " + process.pid
-				);
-				console.error(error);
-			});
+		const mongoUri =
+			process.env.CUSTOMCONNSTR_URIMongoDB || process.env.MONGODB_URI;
+		const mongoOptions = process.env.MONGODB_DB
+			? { dbName: process.env.MONGODB_DB }
+			: undefined;
+
+		if (!mongoUri) {
+			console.log(
+				"MongoDB URI is missing. Set CUSTOMCONNSTR_URIMongoDB or MONGODB_URI."
+			);
+		} else {
+			await connect(mongoUri, mongoOptions)
+				.then(() =>
+					console.log("Connected to MongoDB - Worker: " + process.pid)
+				)
+				.catch(error => {
+					console.log(
+						"An error has occured with MongoDB - Worker: " + process.pid
+					);
+					console.error(error);
+				});
+		}
 
 		console.log("The server is online! - Worker: " + process.pid);
 		setValue("fmsUpdates", {});
