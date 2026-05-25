@@ -21,7 +21,13 @@ exports.run = async (req, res) => {
 	)
 		maintenance = true;
 
-	const { IPId, _Locked } = await getIPData(IP);
+	let IPId = 0;
+	try {
+		({ IPId } = await getIPData(IP));
+	} catch (error) {
+		console.error(`[getConfig] IP lookup failed for ${IP}`);
+		console.error(error);
+	}
 
 	res.json({
 		version: config.AppVersion,

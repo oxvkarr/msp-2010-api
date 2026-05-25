@@ -5,6 +5,10 @@ const {
 	clothModel
 } = require("../Utils/Schemas.js");
 const { buildXML } = require("../Utils/XML.js");
+const seedEyes = require("../seed/msp2010/eyes.json");
+const seedNoses = require("../seed/msp2010/noses.json");
+const seedMouths = require("../seed/msp2010/mouths.json");
+const seedClothes = require("../seed/msp2010/clothes.json");
 
 exports.data = {
 	SOAPAction: "LoadDataForRegisterNewUser",
@@ -17,99 +21,96 @@ exports.run = async () => {
 	// SkinId 1 > Girl
 	// SkinId 2 > Boy
 
-	const eyes = await eyeModel.aggregate([
-		{
-			$facet: {
-				eyesGirl: [{ $match: { SkinId: 1 } }, { $sample: { size: 3 } }],
-				eyesBoy: [{ $match: { SkinId: 2 } }, { $sample: { size: 3 } }]
-			}
-		},
-		{
-			$project: {
-				combined: { $concatArrays: ["$eyesGirl", "$eyesBoy"] }
-			}
-		},
-		{ $unwind: "$combined" },
-		{ $replaceRoot: { newRoot: "$combined" } }
-	]);
+	let eyes = [];
+	let noses = [];
+	let mouths = [];
+	let clothes = [];
 
-	let eyesArr = [];
+	try {
+		eyes = await eyeModel.aggregate([
+			{
+				$facet: {
+					eyesGirl: [{ $match: { SkinId: 1 } }, { $sample: { size: 3 } }],
+					eyesBoy: [{ $match: { SkinId: 2 } }, { $sample: { size: 3 } }]
+				}
+			},
+			{
+				$project: {
+					combined: { $concatArrays: ["$eyesGirl", "$eyesBoy"] }
+				}
+			},
+			{ $unwind: "$combined" },
+			{ $replaceRoot: { newRoot: "$combined" } }
+		]);
 
-	for (let eye of eyes) {
-		eyesArr.push({
-			EyeId: eye.EyeId,
-			Name: eye.Name,
-			SWF: eye.SWF,
-			SkinId: eye.SkinId
-		});
+		noses = await noseModel.aggregate([
+			{
+				$facet: {
+					nosesGirl: [
+						{ $match: { SkinId: 1 } },
+						{ $sample: { size: 3 } }
+					],
+					nosesBoy: [{ $match: { SkinId: 2 } }, { $sample: { size: 3 } }]
+				}
+			},
+			{
+				$project: {
+					combined: { $concatArrays: ["$nosesGirl", "$nosesBoy"] }
+				}
+			},
+			{ $unwind: "$combined" },
+			{ $replaceRoot: { newRoot: "$combined" } }
+		]);
+
+		mouths = await mouthModel.aggregate([
+			{
+				$facet: {
+					mouthsGirl: [
+						{ $match: { SkinId: 1 } },
+						{ $sample: { size: 3 } }
+					],
+					mouthsBoy: [{ $match: { SkinId: 2 } }, { $sample: { size: 3 } }]
+				}
+			},
+			{
+				$project: {
+					combined: { $concatArrays: ["$mouthsGirl", "$mouthsBoy"] }
+				}
+			},
+			{ $unwind: "$combined" },
+			{ $replaceRoot: { newRoot: "$combined" } }
+		]);
+
+		clothes = await clothModel.find({ RegNewUser: 1 });
+	} catch (error) {
+		console.error("[LoadDataForRegisterNewUser] Mongo lookup failed, using seed data");
+		console.error(error);
 	}
 
-	const noses = await noseModel.aggregate([
-		{
-			$facet: {
-				nosesGirl: [
-					{ $match: { SkinId: 1 } },
-					{ $sample: { size: 3 } }
-				],
-				nosesBoy: [{ $match: { SkinId: 2 } }, { $sample: { size: 3 } }]
-			}
-		},
-		{
-			$project: {
-				combined: { $concatArrays: ["$nosesGirl", "$nosesBoy"] }
-			}
-		},
-		{ $unwind: "$combined" },
-		{ $replaceRoot: { newRoot: "$combined" } }
-	]);
+	if (!eyes.length) eyes = seedEyes;
+	if (!noses.length) noses = seedNoses;
+	if (!mouths.length) mouths = seedMouths;
+	if (!clothes.length) clothes = seedClothes;
 
-	let nosesArr = [];
-
-	for (let nose of noses) {
-		nosesArr.push({
-			NoseId: nose.NoseId,
-			Name: nose.Name,
-			SWF: nose.SWF,
-			SkinId: nose.SkinId
-		});
-	}
-
-	const mouths = await mouthModel.aggregate([
-		{
-			$facet: {
-				mouthsGirl: [
-					{ $match: { SkinId: 1 } },
-					{ $sample: { size: 3 } }
-				],
-				mouthsBoy: [{ $match: { SkinId: 2 } }, { $sample: { size: 3 } }]
-			}
-		},
-		{
-			$project: {
-				combined: { $concatArrays: ["$mouthsGirl", "$mouthsBoy"] }
-			}
-		},
-		{ $unwind: "$combined" },
-		{ $replaceRoot: { newRoot: "$combined" } }
-	]);
-
-	let mouthsArr = [];
-
-	for (let mouth of mouths) {
-		mouthsArr.push({
-			MouthId: mouth.MouthId,
-			Name: mouth.Name,
-			SWF: mouth.SWF,
-			SkinId: mouth.SkinId
-		});
-	}
-
-	const clothes = await clothModel.find({ RegNewUser: 1 });
-
-	let clothesArr = [];
-
-	for (let clothe of clothes) {
-		clothesArr.push({
+	const eyesArr = eyes.map(eye => ({
+		EyeId: eye.EyeId,
+		Name: eye.Name,
+		SWF: eye.SWF,
+		SkinId: eye.SkinId
+	}));
+	const nosesArr = noses.map(nose => ({
+		NoseId: nose.NoseId,
+		Name: nose.Name,
+		SWF: nose.SWF,
+		SkinId: nose.SkinId
+	}));
+	const mouthsArr = mouths.map(mouth => ({
+		MouthId: mouth.MouthId,
+		Name: mouth.Name,
+		SWF: mouth.SWF,
+		SkinId: mouth.SkinId
+	}));
+	const clothesArr = clothes.map(clothe => ({
 			ClothesId: clothe.ClothesId,
 			Name: clothe.Name,
 			SWF: clothe.SWF,
@@ -133,8 +134,7 @@ exports.run = async () => {
 					Name: clothe.ClothesCategoryName
 				}
 			}
-		});
-	}
+	}));
 
 	return buildXML("LoadDataForRegisterNewUser", {
 		eyes: {
