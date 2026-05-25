@@ -321,7 +321,7 @@ const buildActorClothesRel = (rel, cloth) => {
 	};
 };
 
-const getActorClothesRels = async ActorId => {
+const getActorClothesRels = async (ActorId, user = null) => {
 	const rels = await idModel.find({
 		ActorId,
 		IsWearing: 1,
@@ -331,6 +331,24 @@ const getActorClothesRels = async ActorId => {
 	for (const rel of rels) {
 		const cloth = await clothModel.findOne({ ClothesId: rel.ClothId });
 		if (cloth) result.push(buildActorClothesRel(rel, cloth));
+	}
+	if (!result.length && user) {
+		const isFemale = String(user.Clinic && user.Clinic.SkinSWF).toLowerCase() === "femaleskin";
+		const defaultIds = isFemale ? [1022, 1036, 1054, 1028] : [1005, 1057, 1002, 1128];
+		for (const clothesId of defaultIds) {
+			const cloth = await clothModel.findOne({ ClothesId: clothesId });
+			if (cloth) {
+				result.push(buildActorClothesRel({
+					ActorId,
+					ClothesRellId: clothesId,
+					ClothId: clothesId,
+					Colors: cloth.ColorScheme || "",
+					x: 0,
+					y: 0,
+					IsWearing: 1
+				}, cloth));
+			}
+		}
 	}
 	return result;
 };
@@ -444,7 +462,7 @@ exports.getActorDetails = async (ActorId, RellActorId, Password) => {
 	}
 
 	const config = (await confModel.findOne({})) || { PollId: 0 };
-	const actorClothesRels = await getActorClothesRels(ActorId);
+	const actorClothesRels = await getActorClothesRels(ActorId, user);
 
 	let PollTaken = 1;
 	if (await pollModel.findOne({ ActorId: ActorId, PollId: config.PollId }))

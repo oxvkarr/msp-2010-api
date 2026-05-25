@@ -99,6 +99,12 @@ if (cluster.isMaster && useCluster) {
 		});
 	});
 
+	app.get("/WebService/Service.asmx", (req, res) => {
+		res.type("text/plain").send(
+			"MSP 2010 SOAP endpoint is online. Use POST with SOAPAction header."
+		);
+	});
+
 	app.all("*", async (req, res) => {
 		try {
 			const contentType = req.header("Content-Type");

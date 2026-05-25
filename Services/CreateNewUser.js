@@ -127,17 +127,10 @@ exports.run = async (request, _, IP) => {
 		"sha512"
 	).toString("hex");
 
-	if (isMongoReady && request.clothes.ActorClothesRel2 instanceof Array) {
-		for (let clothe of request.clothes.ActorClothesRel2) {
+	if (isMongoReady) {
+		for (const clothe of collectCreateUserClothes(request.clothes)) {
 			await makeClothesRellId(clothe, ActorId);
 		}
-	} else if (typeof request.clothes === "number") {
-		// Allow user to have no clothes
-	} else if (
-		isMongoReady &&
-		request.clothes.ActorClothesRel2.ActorClothesRelId !== undefined
-	) {
-		await makeClothesRellId(request.clothes.ActorClothesRel2, ActorId);
 	}
 
 	let SkinId;
@@ -391,9 +384,16 @@ exports.run = async (request, _, IP) => {
 };
 
 async function makeClothesRellId(clothe, ActorId) {
+	if (!clothe || typeof clothe !== "object") return;
+	const clothesId = Number(
+		clothe.ClothesId ||
+		clothe._ClothesId ||
+		(clothe.Cloth && (clothe.Cloth.ClothesId || clothe.Cloth._ClothesId))
+	);
+	if (!clothesId) return;
 	if (
 		!(await clothModel.findOne({
-			ClothesId: clothe.ClothesId,
+			ClothesId: clothesId,
 			RegNewUser: 1
 		}))
 	)
@@ -404,12 +404,29 @@ async function makeClothesRellId(clothe, ActorId) {
 	const rell = new idModel({
 		ActorId: ActorId,
 		ClothesRellId: rellId,
-		ClothId: clothe.ClothesId,
-		Colors: clothe.Color,
+		ClothId: clothesId,
+		Colors: clothe.Color || clothe._Color || clothe.ColorScheme || "",
 		x: 0,
 		y: 0,
 		IsWearing: 1,
 		IsRecycled: 0
 	});
 	await rell.save();
+}
+
+function collectCreateUserClothes(clothes) {
+	if (!clothes || typeof clothes === "number") return [];
+	if (Array.isArray(clothes)) return clothes;
+	const candidates = [
+		clothes.ActorClothesRel2,
+		clothes.ActorClothesRel,
+		clothes._ActorClothesRel2,
+		clothes._ActorClothesRel
+	].filter(Boolean);
+	const result = [];
+	for (const candidate of candidates) {
+		if (Array.isArray(candidate)) result.push(...candidate);
+		else if (typeof candidate === "object") result.push(candidate);
+	}
+	return result;
 }
