@@ -12,11 +12,20 @@ const seedClothes = require("../seed/msp2010/clothes.json");
 const { connection } = require("mongoose");
 const { basename } = require("path");
 
-const swfClassName = clothe =>
-	basename(String(clothe.Filename || clothe.SWF || ""), ".swf").replace(
+const swfClassName = clothe => {
+	const base = basename(String(clothe.Filename || clothe.SWF || ""), ".swf").replace(
 		/\s*\([^)]*\)\s*$/,
 		""
 	);
+	const aliases = {
+		top_2_Honey: "top2_Honey",
+		top_3_Honey: "top3_Honey",
+		top_4_Honey: "Top4",
+		Honey_bottoms_10: "Honey_Female_bottoms_10",
+		Honey_bottoms_9: "Honey_Female_bottoms_9"
+	};
+	return aliases[base] || base;
+};
 
 exports.data = {
 	SOAPAction: "LoadDataForRegisterNewUser",
