@@ -32,7 +32,13 @@ exports.run = async (req, res) => {
 	if (process.env.ChecksumEnabled === "true")
 		res.set("checksum-server", createChecksum(undefined));
 
-	const { Locked } = await getIPData(IP);
+	let Locked = false;
+	try {
+		({ Locked } = await getIPData(IP));
+	} catch (error) {
+		console.error(`[Service] IP lookup failed for ${IP}`);
+		console.error(error);
+	}
 	if (Locked) return res.sendStatus(403);
 
 	try {
