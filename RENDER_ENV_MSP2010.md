@@ -34,6 +34,7 @@ CUSTOMCONNSTR_SaltClient=put_another_long_random_secret_here
 DevServer=false
 ChecksumEnabled=false
 LogEveryRequest=false
+CLUSTER_ENABLED=false
 CORS_ORIGINS=https://pub-2ec8e3c2f0a24e46ab1defac06482eb3.r2.dev,http://127.0.0.1:80,http://localhost:80
 ```
 

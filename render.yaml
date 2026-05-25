@@ -14,6 +14,8 @@ services:
         value: false
       - key: LogEveryRequest
         value: false
+      - key: CLUSTER_ENABLED
+        value: false
       - key: MSP2010_CDN_URL
         value: https://pub-2ec8e3c2f0a24e46ab1defac06482eb3.r2.dev/2010
       - key: CORS_ORIGINS

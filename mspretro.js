@@ -17,7 +17,9 @@ const { sanitizeJSON } = require("./Utils/Util.js");
 const { deleteValue, setValue } = require("./Utils/Globals.js");
 const { setError, clearError } = require("./Utils/ErrorManager.js");
 
-if (cluster.isMaster) {
+const useCluster = process.env.CLUSTER_ENABLED === "true";
+
+if (cluster.isMaster && useCluster) {
 	let workers = [];
 
 	cpus().forEach(() => workers.push(cluster.fork()));
@@ -79,6 +81,14 @@ if (cluster.isMaster) {
 			maxAge: 86400 // 24h for Firefox, 2h for Chromium version >= 76, 10 minutes for Chromium version < 76
 		})
 	);
+
+	app.get("/api/health", (req, res) => {
+		res.json({
+			ok: true,
+			service: "msp-2010-api",
+			time: new Date().toISOString()
+		});
+	});
 
 	app.all("*", async (req, res) => {
 		const contentType = req.header("Content-Type");
