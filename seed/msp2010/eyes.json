@@ -1,0 +1,5 @@
+[
+  { "EyeId": 1, "Name": "Classic Girl", "SWF": "female_eyes_2", "SkinId": 1, "Price": 0, "Vip": 0, "RegNewUser": 1, "sortorder": 1, "Discount": 0, "DiamondsPrice": 0, "IsHidden": 0, "DragonBone": false },
+  { "EyeId": 2, "Name": "Classic Boy", "SWF": "male_eye1", "SkinId": 2, "Price": 0, "Vip": 0, "RegNewUser": 1, "sortorder": 2, "Discount": 0, "DiamondsPrice": 0, "IsHidden": 0, "DragonBone": false },
+  { "EyeId": 3, "Name": "Classic Eyes", "SWF": "eyes_1", "SkinId": 1, "Price": 0, "Vip": 0, "RegNewUser": 1, "sortorder": 3, "Discount": 0, "DiamondsPrice": 0, "IsHidden": 0, "DragonBone": false }
+]

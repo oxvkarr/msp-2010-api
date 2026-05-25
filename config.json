@@ -1,0 +1,9 @@
+{
+	"AppVersion": 5,
+	"maintenance": {
+		"InMaintenance": false,
+		"message": "",
+		"AllowedIP": ["92.134.118.5", "141.145.219.108"]
+	},
+	"disclamer": "MSP 2010 private retro client. Use only with assets and services you are allowed to host."
+}

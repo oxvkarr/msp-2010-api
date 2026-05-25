@@ -1,0 +1,5 @@
+[
+  { "NoseId": 4, "Name": "Boy Nose", "SWF": "nose_4", "SkinId": 2, "Price": 0, "Vip": 0, "RegNewUser": 1, "sortorder": 4, "Discount": 0, "DiamondsPrice": 0, "IsHidden": 0, "DragonBone": false },
+  { "NoseId": 5, "Name": "Girl Nose", "SWF": "nose_5", "SkinId": 1, "Price": 0, "Vip": 0, "RegNewUser": 1, "sortorder": 5, "Discount": 0, "DiamondsPrice": 0, "IsHidden": 0, "DragonBone": false },
+  { "NoseId": 6, "Name": "Girl Nose 2", "SWF": "nose_6", "SkinId": 1, "Price": 0, "Vip": 0, "RegNewUser": 1, "sortorder": 6, "Discount": 0, "DiamondsPrice": 0, "IsHidden": 0, "DragonBone": false }
+]

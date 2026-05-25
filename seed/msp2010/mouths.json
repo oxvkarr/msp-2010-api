@@ -1,0 +1,5 @@
+[
+  { "MouthId": 1, "Name": "Classic Girl", "SWF": "female_mouth_1", "SkinId": 1, "Price": 0, "Vip": 0, "RegNewUser": 1, "sortorder": 1, "Discount": 0, "DiamondsPrice": 0, "IsHidden": 0, "DragonBone": false, "DefaultColors": "skincolor,0xd45a6a" },
+  { "MouthId": 2, "Name": "Girl Smile", "SWF": "female_mouth_2", "SkinId": 1, "Price": 0, "Vip": 0, "RegNewUser": 1, "sortorder": 2, "Discount": 0, "DiamondsPrice": 0, "IsHidden": 0, "DragonBone": false, "DefaultColors": "skincolor,0xd45a6a" },
+  { "MouthId": 4, "Name": "Classic Boy", "SWF": "male_mouth_1", "SkinId": 2, "Price": 0, "Vip": 0, "RegNewUser": 1, "sortorder": 4, "Discount": 0, "DiamondsPrice": 0, "IsHidden": 0, "DragonBone": false, "DefaultColors": "skincolor,0xb64254" }
+]
