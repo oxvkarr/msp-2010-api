@@ -12,6 +12,12 @@ const seedClothes = require("../seed/msp2010/clothes.json");
 const { connection } = require("mongoose");
 const { basename } = require("path");
 
+const swfClassName = clothe =>
+	basename(String(clothe.Filename || clothe.SWF || ""), ".swf").replace(
+		/\s*\([^)]*\)\s*$/,
+		""
+	);
+
 exports.data = {
 	SOAPAction: "LoadDataForRegisterNewUser",
 	needTicket: false,
@@ -115,7 +121,7 @@ exports.run = async () => {
 	const clothesArr = clothes.map(clothe => ({
 			ClothesId: clothe.ClothesId,
 			Name: clothe.Name,
-			SWF: basename(String(clothe.Filename || clothe.SWF || ""), ".swf"),
+			SWF: swfClassName(clothe),
 			ClothesCategoryId: clothe.ClothesCategoryId,
 			Price: clothe.Price,
 			ShopId: clothe.ShopId,
