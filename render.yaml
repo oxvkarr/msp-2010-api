@@ -1,0 +1,26 @@
+services:
+  - type: web
+    name: msp-2010-api
+    runtime: node
+    plan: free
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: PORT
+        value: 10000
+      - key: DevServer
+        value: false
+      - key: ChecksumEnabled
+        value: false
+      - key: LogEveryRequest
+        value: false
+      - key: MSP2010_CDN_URL
+        value: https://pub-2ec8e3c2f0a24e46ab1defac06482eb3.r2.dev/2010
+      - key: CORS_ORIGINS
+        value: https://pub-2ec8e3c2f0a24e46ab1defac06482eb3.r2.dev,http://127.0.0.1:80,http://localhost:80
+      - key: CUSTOMCONNSTR_URIMongoDB
+        sync: false
+      - key: CUSTOMCONNSTR_SaltDB
+        sync: false
+      - key: CUSTOMCONNSTR_SaltClient
+        sync: false
