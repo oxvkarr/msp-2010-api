@@ -30,6 +30,46 @@ const swfClassName = clothe => {
 	return aliases[base] || base;
 };
 
+const rel = (id, colors = "") => ({
+	ActorClothesRelId: id,
+	_ActorClothesRelId: id,
+	ClothesId: id,
+	_ClothesId: id,
+	Color: colors,
+	_Color: colors,
+	IsWearing: true,
+	_IsWearing: true,
+	x: 0,
+	_x: 0,
+	y: 0,
+	_y: 0
+});
+
+const actor = (gender, skinSwf, skinColor, eyeId, noseId, mouthId, eyeColors, mouthColors, rels) => ({
+	ActorId: 0,
+	_ActorId: 0,
+	Name: "",
+	_Name: "",
+	Gender: gender,
+	_Gender: gender,
+	SkinSWF: skinSwf,
+	_SkinSWF: skinSwf,
+	SkinColor: skinColor,
+	_SkinColor: skinColor,
+	EyeId: eyeId,
+	_EyeId: eyeId,
+	NoseId: noseId,
+	_NoseId: noseId,
+	MouthId: mouthId,
+	_MouthId: mouthId,
+	EyeColors: eyeColors,
+	_EyeColors: eyeColors,
+	MouthColors: mouthColors,
+	_MouthColors: mouthColors,
+	ActorClothesRels: { ActorClothesRel: rels },
+	_ActorClothesRels: { ActorClothesRel: rels }
+});
+
 exports.data = {
 	SOAPAction: "LoadDataForRegisterNewUser",
 	needTicket: false,
@@ -178,18 +218,63 @@ exports.run = async () => {
 		});
 	});
 
-	return buildXML("LoadDataForRegisterNewUser", {
+	const femaleRels = [
+		rel(1022, ""),
+		rel(1036, "0x666666,0xFF00CC"),
+		rel(1054, "0x990099,0xffcc00,0xffff33"),
+		rel(1028, "0x6699cc,0x990000")
+	];
+	const maleRels = [
+		rel(1005, "0xcc0000,0xff6600,0xffff00"),
+		rel(1057, "0x666666"),
+		rel(1002, ""),
+		rel(1128, "0x6699cc,0x990000")
+	];
+	const femaleActor = actor("Female", "femaleskin", "0xffd1b3", 1, 5, 1, "0x5b351c", "skincolor,0xd45a6a", femaleRels);
+	const maleActor = actor("Male", "maleskin", "0xffd1b3", 2, 4, 4, "0x3a6eb5", "skincolor,0xb64254", maleRels);
+	const response = {
+		Eyes: {
+			Eye: eyesArr
+		},
 		eyes: {
 			Eye: eyesArr
+		},
+		Noses: {
+			Nose: nosesArr
 		},
 		noses: {
 			Nose: nosesArr
 		},
+		Mouths: {
+			Mouth: mouthsArr
+		},
 		mouths: {
 			Mouth: mouthsArr
 		},
+		Clothes: {
+			Cloth: clothesArr
+		},
 		clothes: {
 			Cloth: clothesArr
-		}
+		},
+		ActorClothesRels: {
+			ActorClothesRel: femaleRels
+		},
+		actorClothesRels: {
+			ActorClothesRel: femaleRels
+		},
+		FemaleActor: femaleActor,
+		femaleActor,
+		MaleActor: maleActor,
+		maleActor,
+		DefaultFemaleActor: femaleActor,
+		defaultFemaleActor: femaleActor,
+		DefaultMaleActor: maleActor,
+		defaultMaleActor: maleActor
+	};
+
+	return buildXML("LoadDataForRegisterNewUser", {
+		...response,
+		RegisterNewUserData: response
 	});
 };
