@@ -247,14 +247,14 @@ const getNewId = (exports.getNewId = async sequence_name => {
 });
 
 const clothOverrideById = {
-	1022: { SWF: "hair_6", Filename: "hair_6.swf" },
-	1021: { SWF: "hair_4", Filename: "hair_4.swf" },
-	1036: { SWF: "top2_Honey", Filename: "top_2_Honey.swf" },
-	1011: { SWF: "top3_Honey", Filename: "top_3_Honey.swf" },
-	1054: { SWF: "Honey_Female_bottoms_10", Filename: "Honey_bottoms_10.swf" },
-	1052: { SWF: "Honey_Female_bottoms_9", Filename: "Honey_bottoms_9.swf" },
-	1028: { SWF: "shoes_1", Filename: "shoes_1.swf" },
-	1029: { SWF: "shoes_2", Filename: "shoes_2.swf" }
+	1022: { SWF: "2009_hair_girls_Honey_1", Filename: "2009_hair_girls_Honey_1.swf" },
+	1021: { SWF: "2009_hair_girls_Honey_2", Filename: "2009_hair_girls_Honey_2.swf" },
+	1036: { SWF: "female_top_2009_1", Filename: "female_top_2009_1.swf" },
+	1011: { SWF: "female_top_2009_2", Filename: "female_top_2009_2.swf" },
+	1054: { SWF: "female_bottoms_2009_1", Filename: "female_bottoms_2009_1.swf" },
+	1052: { SWF: "female_bottoms_2009_2", Filename: "female_bottoms_2009_2.swf" },
+	1028: { SWF: "january_2011_shoes_female_1", Filename: "january_2011_shoes_female_1.swf" },
+	1029: { SWF: "february_shoes_female_1", Filename: "february_shoes_female_1.swf" }
 };
 
 const baseSwfName = value =>
