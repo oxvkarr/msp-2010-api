@@ -30,7 +30,7 @@ const swfClassName = clothe => {
 	return aliases[base] || base;
 };
 
-const rel = (id, colors = "") => ({
+const rel = (id, colors = "", cloth = null) => ({
 	ActorClothesRelId: id,
 	_ActorClothesRelId: id,
 	ClothesId: id,
@@ -42,7 +42,8 @@ const rel = (id, colors = "") => ({
 	x: 0,
 	_x: 0,
 	y: 0,
-	_y: 0
+	_y: 0,
+	...(cloth ? { Cloth: cloth, _Cloth: cloth } : {})
 });
 
 const actor = (gender, skinSwf, skinColor, eyeId, noseId, mouthId, eyeColors, mouthColors, rels) => ({
@@ -217,18 +218,19 @@ exports.run = async () => {
 			}
 		});
 	});
+	const clothesById = new Map(clothesArr.map(clothe => [Number(clothe.ClothesId), clothe]));
 
 	const femaleRels = [
-		rel(1022, ""),
-		rel(1036, "0x666666,0xFF00CC"),
-		rel(1054, "0x990099,0xffcc00,0xffff33"),
-		rel(1028, "0x6699cc,0x990000")
+		rel(1022, "", clothesById.get(1022)),
+		rel(1036, "0x666666,0xFF00CC", clothesById.get(1036)),
+		rel(1054, "0x990099,0xffcc00,0xffff33", clothesById.get(1054)),
+		rel(1028, "0x6699cc,0x990000", clothesById.get(1028))
 	];
 	const maleRels = [
-		rel(1005, "0xcc0000,0xff6600,0xffff00"),
-		rel(1057, "0x666666"),
-		rel(1002, ""),
-		rel(1128, "0x6699cc,0x990000")
+		rel(1005, "0xcc0000,0xff6600,0xffff00", clothesById.get(1005)),
+		rel(1057, "0x666666", clothesById.get(1057)),
+		rel(1002, "", clothesById.get(1002)),
+		rel(1128, "0x6699cc,0x990000", clothesById.get(1128))
 	];
 	const femaleActor = actor("Female", "femaleskin", "0xffd1b3", 1, 5, 1, "0x5b351c", "skincolor,0xd45a6a", femaleRels);
 	const maleActor = actor("Male", "maleskin", "0xffd1b3", 2, 4, 4, "0x3a6eb5", "skincolor,0xb64254", maleRels);
