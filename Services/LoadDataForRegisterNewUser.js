@@ -172,24 +172,29 @@ exports.run = async () => {
 		SkinId: mouth.SkinId
 	}));
 	const clothesArr = clothes.map(clothe => {
-		const swfName = swfClassName(clothe);
+		const className = swfClassName(clothe);
 		const fileName = swfFileName(clothe);
-		const fullPath = `${clothe.SWF}/${fileName}.swf`;
+		const filename = clothe.Filename || `${fileName}.swf`;
+		const fullPath = `${clothe.SWF}/${filename}`;
 		return ({
 			ClothesId: clothe.ClothesId,
 			ClothId: clothe.ClothesId,
 			Id: clothe.ClothesId,
 			Name: clothe.Name,
-			SWF: swfName,
-			_SWF: swfName,
+			SWF: clothe.SWF,
+			_SWF: clothe.SWF,
+			ClassName: className,
+			_ClassName: className,
 			ClothesCategoryId: clothe.ClothesCategoryId,
 			_ClothesCategoryId: clothe.ClothesCategoryId,
 			Price: clothe.Price,
 			ShopId: clothe.ShopId,
 			SkinId: clothe.SkinId,
 			_SkinId: clothe.SkinId,
-			Filename: `${fileName}.swf`,
-			_Filename: `${fileName}.swf`,
+			Filename: filename,
+			_Filename: filename,
+			FileBase: fileName,
+			_FileBase: fileName,
 			Path: fullPath,
 			_Path: fullPath,
 			Url: fullPath,
@@ -218,65 +223,18 @@ exports.run = async () => {
 			}
 		});
 	});
-	const clothesById = new Map(clothesArr.map(clothe => [Number(clothe.ClothesId), clothe]));
-
-	const femaleRels = [
-		rel(1022, "", clothesById.get(1022)),
-		rel(1036, "0x666666,0xFF00CC", clothesById.get(1036)),
-		rel(1054, "0x990099,0xffcc00,0xffff33", clothesById.get(1054)),
-		rel(1028, "0x6699cc,0x990000", clothesById.get(1028))
-	];
-	const maleRels = [
-		rel(1005, "0xcc0000,0xff6600,0xffff00", clothesById.get(1005)),
-		rel(1057, "0x666666", clothesById.get(1057)),
-		rel(1002, "", clothesById.get(1002)),
-		rel(1128, "0x6699cc,0x990000", clothesById.get(1128))
-	];
-	const femaleActor = actor("Female", "femaleskin", "0xffd1b3", 1, 5, 1, "0x5b351c", "skincolor,0xd45a6a", femaleRels);
-	const maleActor = actor("Male", "maleskin", "0xffd1b3", 2, 4, 4, "0x3a6eb5", "skincolor,0xb64254", maleRels);
-	const response = {
-		Eyes: {
-			Eye: eyesArr
-		},
+	return buildXML("LoadDataForRegisterNewUser", {
 		eyes: {
 			Eye: eyesArr
-		},
-		Noses: {
-			Nose: nosesArr
 		},
 		noses: {
 			Nose: nosesArr
 		},
-		Mouths: {
-			Mouth: mouthsArr
-		},
 		mouths: {
 			Mouth: mouthsArr
 		},
-		Clothes: {
-			Cloth: clothesArr
-		},
 		clothes: {
 			Cloth: clothesArr
-		},
-		ActorClothesRels: {
-			ActorClothesRel: femaleRels
-		},
-		actorClothesRels: {
-			ActorClothesRel: femaleRels
-		},
-		FemaleActor: femaleActor,
-		femaleActor,
-		MaleActor: maleActor,
-		maleActor,
-		DefaultFemaleActor: femaleActor,
-		defaultFemaleActor: femaleActor,
-		DefaultMaleActor: maleActor,
-		defaultMaleActor: maleActor
-	};
-
-	return buildXML("LoadDataForRegisterNewUser", {
-		...response,
-		RegisterNewUserData: response
+		}
 	});
 };
