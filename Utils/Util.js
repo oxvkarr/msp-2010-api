@@ -282,9 +282,12 @@ const normalizeClothAsset = cloth => {
 	};
 };
 
+const wearableSlotTypeId = categoryId => ({ 1: 2, 2: 3, 3: 4, 10: 5 }[Number(categoryId)] || categoryId);
+
 const buildActorClothesRel = (rel, cloth) => {
 	const asset = normalizeClothAsset(cloth);
 	const categoryId = cloth.ClothesCategoryId || 0;
+	const slotTypeId = wearableSlotTypeId(categoryId);
 	return {
 		ActorClothesRelId: rel.ClothesRellId,
 		ActorId: rel.ActorId,
@@ -298,6 +301,7 @@ const buildActorClothesRel = (rel, cloth) => {
 			Name: cloth.Name || "",
 			SWF: asset.SWF,
 			ClothesCategoryId: categoryId,
+			SlotTypeId: slotTypeId,
 			Price: cloth.Price || 0,
 			ShopId: cloth.ShopId || 0,
 			SkinId: cloth.SkinId || 0,
@@ -311,9 +315,9 @@ const buildActorClothesRel = (rel, cloth) => {
 			ClothesCategory: {
 				ClothesCategoryId: categoryId,
 				Name: cloth.ClothesCategoryName || "",
-				SlotTypeId: cloth.SlotTypeId || categoryId,
+				SlotTypeId: slotTypeId,
 				SlotType: {
-					SlotTypeId: cloth.SlotTypeId || categoryId,
+					SlotTypeId: slotTypeId,
 					Name: cloth.ClothesCategoryName || ""
 				}
 			}

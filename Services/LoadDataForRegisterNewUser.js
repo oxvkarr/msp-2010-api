@@ -171,14 +171,17 @@ exports.run = async () => {
 		SWF: mouth.SWF,
 		SkinId: mouth.SkinId
 	}));
+	const wearableSlotTypeId = categoryId => ({ 1: 2, 2: 3, 3: 4, 10: 5 }[Number(categoryId)] || categoryId);
 	const clothesArr = clothes.map(clothe => {
 		const swfName = swfClassName(clothe);
 		const fileName = swfFileName(clothe);
+		const slotTypeId = wearableSlotTypeId(clothe.ClothesCategoryId);
 		return ({
 			ClothesId: clothe.ClothesId,
 			Name: clothe.Name,
 			SWF: swfName,
 			ClothesCategoryId: clothe.ClothesCategoryId,
+			SlotTypeId: slotTypeId,
 			Price: clothe.Price,
 			ShopId: clothe.ShopId,
 			SkinId: clothe.SkinId,
@@ -193,9 +196,9 @@ exports.run = async () => {
 			ClothesCategory: {
 				ClothesCategoryId: clothe.ClothesCategoryId,
 				Name: clothe.ClothesCategoryName,
-				SlotTypeId: clothe.SlotTypeId,
+				SlotTypeId: slotTypeId,
 				SlotType: {
-					SlotTypeId: clothe.SlotTypeId,
+					SlotTypeId: slotTypeId,
 					Name: clothe.ClothesCategoryName
 				}
 			}
