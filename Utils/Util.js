@@ -301,7 +301,6 @@ const buildActorClothesRel = (rel, cloth) => {
 			Name: cloth.Name || "",
 			SWF: asset.SWF,
 			ClothesCategoryId: categoryId,
-			SlotTypeId: slotTypeId,
 			Price: cloth.Price || 0,
 			ShopId: cloth.ShopId || 0,
 			SkinId: cloth.SkinId || 0,

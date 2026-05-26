@@ -181,7 +181,6 @@ exports.run = async () => {
 			Name: clothe.Name,
 			SWF: swfName,
 			ClothesCategoryId: clothe.ClothesCategoryId,
-			SlotTypeId: slotTypeId,
 			Price: clothe.Price,
 			ShopId: clothe.ShopId,
 			SkinId: clothe.SkinId,
