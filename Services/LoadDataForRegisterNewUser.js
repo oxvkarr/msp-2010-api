@@ -172,46 +172,24 @@ exports.run = async () => {
 		SkinId: mouth.SkinId
 	}));
 	const clothesArr = clothes.map(clothe => {
-		const className = swfClassName(clothe);
+		const swfName = swfClassName(clothe);
 		const fileName = swfFileName(clothe);
-		const filename = clothe.Filename || `${fileName}.swf`;
-		const fullPath = `${clothe.SWF}/${filename}`;
 		return ({
 			ClothesId: clothe.ClothesId,
-			ClothId: clothe.ClothesId,
-			Id: clothe.ClothesId,
 			Name: clothe.Name,
-			SWF: clothe.SWF,
-			_SWF: clothe.SWF,
-			ClassName: className,
-			_ClassName: className,
+			SWF: swfName,
 			ClothesCategoryId: clothe.ClothesCategoryId,
-			_ClothesCategoryId: clothe.ClothesCategoryId,
 			Price: clothe.Price,
 			ShopId: clothe.ShopId,
 			SkinId: clothe.SkinId,
-			_SkinId: clothe.SkinId,
-			Filename: filename,
-			_Filename: filename,
-			FileBase: fileName,
-			_FileBase: fileName,
-			Path: fullPath,
-			_Path: fullPath,
-			Url: fullPath,
-			_Url: fullPath,
+			Filename: `${fileName}.swf`,
 			Scale: clothe.Scale,
 			Vip: clothe.Vip,
 			RegNewUser: clothe.RegNewUser,
-			_RegNewUser: clothe.RegNewUser,
 			sortorder: clothe.Sortorder,
-			Sortorder: clothe.Sortorder,
 			New: clothe.New,
 			Discount: clothe.Discount,
-			Color: clothe.ColorScheme || "",
-			_Color: clothe.ColorScheme || "",
 			ColorScheme: clothe.ColorScheme || "",
-			_ColorScheme: clothe.ColorScheme || "",
-			DefaultColors: clothe.ColorScheme || "",
 			ClothesCategory: {
 				ClothesCategoryId: clothe.ClothesCategoryId,
 				Name: clothe.ClothesCategoryName,
